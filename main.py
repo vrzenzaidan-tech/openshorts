@@ -32,6 +32,7 @@ import layout_picker
 import llm_backend
 import yt_account
 import twitch_signals
+import youtube_signals
 from clip_selection import (build_transcript_windows, clip_count_targets,
                             clip_duration_bounds, dedupe_overlapping,
                             detail_plan, vision_targets,
@@ -2502,8 +2503,15 @@ def get_viral_clips(transcript_result, video_duration, viewer_clips=None):
                 item = {"id": w["id"], "start": w["start"], "end": w["end"], "text": w["text"]}
                 h = heat.get(w["id"])
                 if h:
-                    item["viewers_clipped"] = h["clips"]
-                    item["viewer_clip_views"] = h["views"]
+                    kinds = h.get("kinds") or {}
+                    twitch = h["clips"] - sum(kinds.values())
+                    if twitch > 0:
+                        item["viewers_clipped"] = twitch
+                        item["viewer_clip_views"] = h["views"]
+                    if kinds.get("replay"):
+                        item["most_replayed_peaks"] = kinds["replay"]
+                    if kinds.get("comments"):
+                        item["comment_timestamp_moments"] = kinds["comments"]
                     item["viewer_moments"] = h["spans"][:5]
                 out.append(item)
             return out
@@ -2713,7 +2721,8 @@ def _viewer_hint(viewer_clips, offset, duration):
     inside = sorted(inside, key=lambda c: -c.get("views", 0))[:15]
     spans = [[round(c["start"] - offset, 1), round(c["end"] - offset, 1), c.get("views", 0)]
              for c in inside]
-    return ("\nVIEWER_CLIPS (moments the stream's live viewers clipped themselves, as "
+    return ("\nVIEWER_CLIPS (moments the audience itself pointed at: stream viewers' "
+            "clips, YouTube's most-replayed peaks, times named in comments; as "
             "[start, end, views] in seconds of THIS video): " + json.dumps(spans) +
             "\nTreat them as strong evidence a moment lands and cover the best of them, "
             "but still judge what you see and keep the time contract.\n")
@@ -2959,6 +2968,18 @@ if __name__ == '__main__':
     viewer_clips = []
     if args.url and not args.skip_analysis and not args.prepare_only:
         viewer_clips = twitch_signals.viewer_clips_for_job(args.url, 0)
+        # YouTube's "most replayed" peaks and the times viewers name in
+        # comments, same shape (youtube_signals; [] for anything else).
+        yt_signals = youtube_signals.signals_for_job(args.url)
+        if yt_signals:
+            yt_offset = 0.0
+            if os.environ.get("MAX_SOURCE_MINUTES", "").strip():
+                try:
+                    yt_offset = float(os.environ.get("SOURCE_START_SECONDS", "0") or 0)
+                except ValueError:
+                    yt_offset = 0.0
+            viewer_clips = viewer_clips + twitch_signals.shift_clips(
+                yt_signals, yt_offset, float("inf"))
 
     # 1. Get Input Video
     if args.url:

@@ -77,8 +77,11 @@ def shift_clips(clips: List[dict], start_seconds: float, duration: float) -> Lis
         mid = (s + e) / 2
         if mid < 0 or mid > duration:
             continue
-        out.append({"start": round(max(0.0, s), 3), "end": round(min(duration, e), 3),
-                    "views": int(c.get("views") or 0)})
+        item = {"start": round(max(0.0, s), 3), "end": round(min(duration, e), 3),
+                "views": int(c.get("views") or 0)}
+        if c.get("kind"):  # youtube_signals: "replay" / "comments"
+            item["kind"] = c["kind"]
+        out.append(item)
     return out
 
 
@@ -94,6 +97,9 @@ def window_heat(windows: List[dict], clips: List[dict]) -> Dict[str, dict]:
         for w in windows:
             if w["start"] <= mid < w["end"] or (mid == w["end"] and w is windows[-1]):
                 h = heat.setdefault(w["id"], {"clips": 0, "views": 0, "spans": []})
+                if c.get("kind"):
+                    kinds = h.setdefault("kinds", {})
+                    kinds[c["kind"]] = kinds.get(c["kind"], 0) + 1
                 h["clips"] += 1
                 h["views"] += c.get("views", 0)
                 h["spans"].append([c["start"], c["end"]])
