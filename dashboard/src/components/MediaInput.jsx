@@ -61,6 +61,14 @@ export default function MediaInput({ onProcess, isProcessing }) {
         // v2 key: the default became 'pill'; an old saved 'classic' was just the old default.
         try { return localStorage.getItem('os_auto_hook_style_v2') || 'pill'; } catch { return 'pill'; }
     });
+    // Opt-in clip layers: a floating round face over the clip, and sound and
+    // picture effects that follow the mood of each moment. Off by default.
+    const [floatingFace, setFloatingFace] = useState(() => {
+        try { return localStorage.getItem('os_floating_face') === '1'; } catch { return false; }
+    });
+    const [moodFx, setMoodFx] = useState(() => {
+        try { return localStorage.getItem('os_mood_fx') === '1'; } catch { return false; }
+    });
     // Layout: 'auto' lets the AI pick per video (server default); the others
     // force one on so a podcast host who knows what they uploaded doesn't
     // depend on the detector, and 'none' keeps the plain single crop.
@@ -129,6 +137,8 @@ export default function MediaInput({ onProcess, isProcessing }) {
             clipMaxSeconds: clipMaxSeconds || null,
             autoHook,
             autoHookStyle,
+            floatingFace,
+            moodFx,
             layout,
             sourceStart: range ? Math.round(range.start) : null,
             sourceEnd: range ? Math.round(range.end) : null,
@@ -137,6 +147,8 @@ export default function MediaInput({ onProcess, isProcessing }) {
             localStorage.setItem('os_auto_hook', autoHook ? '1' : '0');
             localStorage.setItem('os_auto_hook_style_v2', autoHookStyle);
             localStorage.setItem('os_layout', layout);
+            localStorage.setItem('os_floating_face', floatingFace ? '1' : '0');
+            localStorage.setItem('os_mood_fx', moodFx ? '1' : '0');
         } catch { /* ignore */ }
         if (mode === 'url' && url) {
             onProcess({ type: 'url', payload: url, acknowledged: true, outputFormat, ...advanced });
@@ -401,6 +413,32 @@ export default function MediaInput({ onProcess, isProcessing }) {
                                     <p className="w-full text-[11px] leading-relaxed text-muted">
                                         You can change each clip&apos;s hook text, style, position and size
                                         afterwards with its hook button.
+                                    </p>
+                                )}
+                            </div>
+                            <div className="col-span-1 sm:col-span-3 flex flex-wrap items-center gap-x-5 gap-y-2 pt-3 sm:pt-1 border-t border-rule">
+                                <label className="flex items-center gap-2 text-xs text-ink2 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={floatingFace}
+                                        onChange={(e) => setFloatingFace(e.target.checked)}
+                                        className="w-4 h-4 shrink-0 accent-[var(--color-accent)] cursor-pointer"
+                                    />
+                                    floating face bubble
+                                </label>
+                                <label className="flex items-center gap-2 text-xs text-ink2 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={moodFx}
+                                        onChange={(e) => setMoodFx(e.target.checked)}
+                                        className="w-4 h-4 shrink-0 accent-[var(--color-accent)] cursor-pointer"
+                                    />
+                                    mood sound &amp; visual effects
+                                </label>
+                                {(floatingFace || moodFx) && (
+                                    <p className="w-full text-[11px] leading-relaxed text-muted">
+                                        The face floats in a top corner on wide shots and screen recordings.
+                                        Effects follow tense, fun, confused, weird, shocked, sad and hype moments.
                                     </p>
                                 )}
                             </div>

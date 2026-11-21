@@ -6134,6 +6134,8 @@ async def process_endpoint(
     clip_max_seconds: Optional[str] = Form(None),
     auto_hook: Optional[str] = Form(None),
     auto_hook_style: Optional[str] = Form(None),
+    floating_face: Optional[str] = Form(None),
+    mood_fx: Optional[str] = Form(None),
     thumbnail_session_id: Optional[str] = Form(None),
     captions: Optional[str] = Form(None),
     upload_id: Optional[str] = Form(None),
@@ -6168,6 +6170,8 @@ async def process_endpoint(
         clip_max_seconds = body.get("clip_max_seconds")
         auto_hook = body.get("auto_hook")
         auto_hook_style = body.get("auto_hook_style")
+        floating_face = body.get("floating_face")
+        mood_fx = body.get("mood_fx")
         thumbnail_session_id = body.get("thumbnail_session_id")
         captions = body.get("captions")
         upload_id = body.get("upload_id")
@@ -6282,6 +6286,21 @@ async def process_endpoint(
         if auto_hook_style in HOOK_STYLES:
             env["AUTO_HOOK_STYLE"] = auto_hook_style
         print(f"[auto-hook] job={job_id} style={env.get('AUTO_HOOK_STYLE', 'classic')}")
+
+    # Opt-in clip layers (clip_fx.py): a floating face bubble and mood-matched
+    # sound/picture effects. Absent → the deployment default (off), so API and
+    # MCP callers keep their old output.
+    if floating_face is not None:
+        ff = str(floating_face).lower()
+        if ff in ("1", "true", "yes", "on", "force"):
+            env["FLOATING_FACE"] = "force" if ff == "force" else "1"
+        elif ff in ("0", "false", "no", "off"):
+            env["FLOATING_FACE"] = "0"
+    if mood_fx is not None:
+        env["MOOD_FX"] = "1" if str(mood_fx).lower() in ("1", "true", "yes", "on") else "0"
+    if env.get("FLOATING_FACE", "0") != "0" or env.get("MOOD_FX") == "1":
+        print(f"[clip-fx] job={job_id} face={env.get('FLOATING_FACE', '0')} "
+              f"mood={env.get('MOOD_FX', '0')}")
 
     # Manual generation controls (discussion #65): optional clip-count target
     # and duration band, forwarded to the selection prompts via the same env

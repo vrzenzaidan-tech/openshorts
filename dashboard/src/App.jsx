@@ -1251,7 +1251,9 @@ function App() {
       // fall through the same gates.
       if (!isSignedIn) { stashPendingJob(data); setShowLogin(true); return; }
       if (!isManaged) { window.location.hash = '#/pricing'; return; }
-    } else if (keysMissing) {
+    } else if (!geminiOk) {
+      // Clipping needs only the Gemini key (or a local LLM). Upload-Post is
+      // asked for when a clip is posted, not before the first one exists.
       setShowKeyModal(true);
       return;
     }
@@ -1287,6 +1289,8 @@ function App() {
         // but the dashboard always states the user's choice.
         auto_hook: data.autoHook ? '1' : '0',
         auto_hook_style: data.autoHook ? (data.autoHookStyle || 'pill') : null,
+        floating_face: data.floatingFace ? '1' : '0',
+        mood_fx: data.moodFx ? '1' : '0',
         // 'auto' is the server default, so only a deliberate choice travels.
         layouts: data.layout && data.layout !== 'auto' ? data.layout : null,
         // Set when the user took the quota wall's "clip the first N minutes"
