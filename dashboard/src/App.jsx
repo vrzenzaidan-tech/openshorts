@@ -1251,7 +1251,9 @@ function App() {
       // fall through the same gates.
       if (!isSignedIn) { stashPendingJob(data); setShowLogin(true); return; }
       if (!isManaged) { window.location.hash = '#/pricing'; return; }
-    } else if (keysMissing) {
+    } else if (!geminiOk) {
+      // Clipping needs only the Gemini key (or a local LLM). Upload-Post is
+      // asked for when a clip is posted, not before the first one exists.
       setShowKeyModal(true);
       return;
     }
