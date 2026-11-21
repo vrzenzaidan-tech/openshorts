@@ -24,6 +24,7 @@ import mediapipe as mp
 from google import genai
 from google.genai import types as genai_types
 
+import clip_fx
 import frame_sampler
 import gpu_decode
 import gemini_worker
@@ -3297,6 +3298,13 @@ if __name__ == '__main__':
                     # and title from three of its frames BEFORE burning them.
                     if success and hook_grounding.wanted(clip['layout_ranges'], end - start):
                         hook_grounding.reground(clip_final_path, clip, transcript, start, end)
+                    # Opt-in layers (FLOATING_FACE, MOOD_FX): the face bubble and the
+                    # mood effects go on the reframe itself, under the hook and the
+                    # captions, which keep being the top layers.
+                    if success and clip_fx.wanted():
+                        clip_fx.apply(clip_final_path, clip_temp_path, clip, transcript,
+                                      start, end, run_stage=_run_gemini_stage,
+                                      detect=lambda fr: [c['box'] for c in detect_face_candidates(fr)])
                     captioned = None
                     # Pro mode replaces the file the hook and the captions go
                     # on, and the timeline they are laid on (its cuts); the

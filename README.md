@@ -106,6 +106,8 @@ Add OpenShorts to Claude or ChatGPT with one URL and ask for clips in plain lang
 - **Hook overlays**: an opening line written from what is said in the clip, editable in text, style, font and position
 - **AI Voice Dubbing**: ElevenLabs, 30+ languages with voice cloning (bring your own ElevenLabs key, on the Cloud too)
 - **AI Video Effects**: Gemini-generated FFmpeg filters
+- **Floating Face Bubble** (opt-in): the speaker's face, cut round, floats in a top corner over wide shots, screen recordings and gameplay; captions stay on top
+- **Mood Sound & Visual Effects** (opt-in): Gemini marks tense, fun, confused, weird, shocked, sad and hype beats; each gets a synthesised sound effect (or your own from `SFX_DIR`) and a short picture effect
 
 ### Social Auto-Publishing (via [Upload-Post](https://www.upload-post.com))
 - **Post a clip to TikTok, Instagram, YouTube, Facebook, LinkedIn, Threads and Bluesky at once**, or schedule it for any date and time
