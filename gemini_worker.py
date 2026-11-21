@@ -273,6 +273,10 @@ Rules:
   live viewers clipped that stretch themselves. That is strong evidence the
   moment lands even when the transcript looks thin (a chase, a crash, a scream),
   so weigh it up; the window still has to make sense to a cold viewer.
+- A window may carry `most_replayed_peaks` (YouTube's "most replayed" graph
+  peaks there: people scrub back to it) and/or `comment_timestamp_moments`
+  (viewers named a time inside it in the comments). Same kind of evidence as
+  viewer clips: weigh it up strongly, but the window must still stand alone.
 
 TRANSCRIPT_LANGUAGE: {language}
 VIDEO_DURATION_SECONDS: {video_duration}
@@ -304,8 +308,9 @@ CLIP RULES:
 - THE 2-SECOND RULE: the clip MUST open on its strongest moment. If the first
   2 seconds would not stop a cold viewer from scrolling, move the start or skip the clip.
 - Start slightly before the hook and end slightly after the payoff when possible.
-- When a window has `viewer_moments` ([start, end] stretches the stream's
-  viewers clipped), the best clip of that window should cover the strongest
+- When a window has `viewer_moments` ([start, end] stretches the audience
+  pointed at: viewer clips, most-replayed peaks, times named in comments),
+  the best clip of that window should cover the strongest
   of them, opening a few seconds before it so the moment has its setup.
 - Do not cut in the middle of a word or phrase.
 - No generic intros/outros unless they are the hook.

@@ -98,6 +98,7 @@ Add OpenShorts to Claude or ChatGPT with one URL and ask for clips in plain lang
 
 ### Clip Generator
 - **Viral Moment Detection**: Google Gemini 3.1 Flash-Lite ranks the transcript and scene boundaries to pick 3-15 moments of 15-60 seconds, each with a virality score
+- **YouTube Audience Signals**: the "Most replayed" heatmap peaks and the times viewers name in comments ("4:32 lol") steer the picker toward the moments the audience already loved (`YOUTUBE_SIGNALS`, on by default)
 - **Runs fully local if you want**: point `LLM_BASE_URL` at Ollama, LM Studio, vLLM or any OpenAI-compatible server and the moment picker runs on your own model, no Google key needed (see [Run without a Google key](#6-run-without-a-google-key-local-llm-optional))
 - **Smart 9:16 Reframing**: per scene: TRACK (MediaPipe + YOLOv8 face tracking), GENERAL (blurred background), SPLIT (two speakers stacked, captions on the seam) and SCREENCAST (screen over presenter); the layout is picked per video by Gemini or forced from the dashboard
 - **Captions**: faster-whisper (or Parakeet on GPU) with word-level timestamps, several caption styles, burned into the clip
